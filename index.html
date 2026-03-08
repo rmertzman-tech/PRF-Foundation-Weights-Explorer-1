@@ -1,45 +1,1287 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UCP Ethical Simulation</title>
-  <link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foundation Weight Explorer - Understand Your PRF</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .import-zone {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+        }
+        
+        .import-zone:hover {
+            background: #e9ecef;
+            border-color: #764ba2;
+        }
+        
+        .import-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .mode-button {
+            flex: 1;
+            min-width: 200px;
+            padding: 20px;
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .mode-button:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .mode-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .mode-button h3 {
+            margin-bottom: 5px;
+        }
+        
+        .mode-button p {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .foundation-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .foundation-button {
+            padding: 20px;
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+        }
+        
+        .foundation-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .foundation-button.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        
+        .foundation-button.care { border-left: 5px solid #e83e8c; }
+        .foundation-button.fairness { border-left: 5px solid #007bff; }
+        .foundation-button.loyalty { border-left: 5px solid #ffc107; }
+        .foundation-button.authority { border-left: 5px solid #6f42c1; }
+        .foundation-button.purity { border-left: 5px solid #28a745; }
+        
+        .user-score-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .slider-container {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .weight-display {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #dc3545 0%, #ffc107 25%, #28a745 50%, #007bff 75%, #667eea 100%);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            border: none;
+        }
+        
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .interpretation-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .interpretation-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .interpretation-card p {
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .interpretation-section {
+            margin: 25px 0;
+        }
+        
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .tag {
+            padding: 8px 16px;
+            background: #e9ecef;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #495057;
+        }
+        
+        .tag.framework {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .scenario-example {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 3px solid #667eea;
+        }
+        
+        .scenario-example strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .compare-column {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+        }
+        
+        .quiz-container {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .quiz-question {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .quiz-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .quiz-option {
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .quiz-option:hover {
+            border-color: #667eea;
+        }
+        
+        .quiz-option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .quiz-option.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .metric-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .compare-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .foundation-selector {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>UCP v2.0 Ethical Simulation</h1>
-  <section>
-    <label for="roleSelect">Role:</label>
-    <select id="roleSelect">
-      <option value="Instructor">Instructor</option>
-      <option value="Researcher">Researcher</option>
-      <option value="Practitioner">Practitioner</option>
-    </select>
-    <button id="loadPresetBtn">Load Preset</button>
-  </section>
-  <section>
-    <label for="moduleSelect">Select Module:</label>
-    <select id="moduleSelect">
-      <option value="Ethical Dilemma: Trolley Problem">Trolley Problem</option>
-      <option value="Whistleblower Simulation">Whistleblower</option>
-      <option value="Paradigm Shift and PRF Drift">PRF Shift</option>
-    </select>
-    <p id="moduleDescription"></p>
-  </section>
-  <section>
-    <h2>Agent Setup</h2>
-    <textarea id="agentInput" rows="8" cols="60">
-[
-  {"name": "Ada", "identity_kernel": "integrity", "ita_role": "engineer", "prf": "consequentialist"},
-  {"name": "Turing", "identity_kernel": "logic", "ita_role": "scientist", "prf": "deontologist"}
-]
-    </textarea><br>
-    <button id="simulateBtn">Run Simulation</button>
-  </section>
-  <section>
-    <h2>Simulation Results</h2>
-    <pre id="output"></pre>
-  </section>
-  <script src="/static/app.js"></script>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Foundation Weight Explorer</h1>
+            <p>Understand What Your PRF Scores Actually Mean</p>
+        </div>
+        
+        <div class="content">
+            <!-- Import Section -->
+            <div id="importSection">
+                <div class="alert alert-info">
+                    <strong>📊 Purpose:</strong> Your PRF-22 scores are numbers (1.0-5.0), but what do they actually mean? This app translates numerical weights into phenomenological descriptions—how each foundation shapes what you notice, care about, and reason from.
+                </div>
+                
+                <div class="import-zone" id="importZone">
+                    <div class="import-icon">📥</div>
+                    <h2>Import Your Digital E-Twin</h2>
+                    <p>Upload your JSON file from the PRF-22 Builder</p>
+                    <input type="file" id="fileInput" accept=".json">
+                </div>
+                
+                <div id="userScoresPreview" class="hidden"></div>
+                
+                <button class="btn-primary" id="continueBtn" style="display: none;" onclick="showExplorer()">
+                    Continue to Explorer →
+                </button>
+            </div>
+            
+            <!-- Main Explorer -->
+            <div id="explorerSection" class="hidden">
+                <div class="alert alert-success">
+                    <strong>✅ E-Twin Loaded!</strong> Your personal scores are highlighted. Explore each foundation to understand what your weights mean.
+                </div>
+                
+                <!-- Mode Selector -->
+                <div class="mode-selector">
+                    <div class="mode-button active" onclick="setMode('explore')" id="modeExplore">
+                        <h3>🔍 Explore</h3>
+                        <p>Understand each foundation</p>
+                    </div>
+                    <div class="mode-button" onclick="setMode('compare')" id="modeCompare">
+                        <h3>⚖️ Compare</h3>
+                        <p>Two foundations side-by-side</p>
+                    </div>
+                    <div class="mode-button" onclick="setMode('whatif')" id="modeWhatif">
+                        <h3>🤔 What If?</h3>
+                        <p>Explore different weights</p>
+                    </div>
+                    <div class="mode-button" onclick="setMode('quiz')" id="modeQuiz">
+                        <h3>🎯 Quiz</h3>
+                        <p>Test your understanding</p>
+                    </div>
+                </div>
+                
+                <!-- Explore Mode -->
+                <div id="exploreModeContent">
+                    <h2 style="margin: 30px 0 20px 0; color: #667eea;">Select a Foundation</h2>
+                    
+                    <div class="foundation-selector">
+                        <div class="foundation-button care active" onclick="selectFoundation('care')">
+                            <div id="careScore" class="user-score-badge">?</div>
+                            <h3>Care</h3>
+                            <p>Suffering/Protection</p>
+                        </div>
+                        <div class="foundation-button fairness" onclick="selectFoundation('fairness')">
+                            <div id="fairnessScore" class="user-score-badge">?</div>
+                            <h3>Fairness</h3>
+                            <p>Justice/Reciprocity</p>
+                        </div>
+                        <div class="foundation-button loyalty" onclick="selectFoundation('loyalty')">
+                            <div id="loyaltyScore" class="user-score-badge">?</div>
+                            <h3>Loyalty</h3>
+                            <p>Group/Belonging</p>
+                        </div>
+                        <div class="foundation-button authority" onclick="selectFoundation('authority')">
+                            <div id="authorityScore" class="user-score-badge">?</div>
+                            <h3>Authority</h3>
+                            <p>Hierarchy/Tradition</p>
+                        </div>
+                        <div class="foundation-button purity" onclick="selectFoundation('purity')">
+                            <div id="purityScore" class="user-score-badge">?</div>
+                            <h3>Purity</h3>
+                            <p>Sacred/Degradation</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Slider -->
+                    <div class="slider-container">
+                        <div class="slider-header">
+                            <div>
+                                <h3 id="currentFoundationTitle">Care Foundation</h3>
+                                <p style="color: #666; margin-top: 5px;">Adjust slider to explore different weight interpretations</p>
+                            </div>
+                            <div class="weight-display" id="weightDisplay">3.0</div>
+                        </div>
+                        
+                        <input type="range" id="weightSlider" min="1.0" max="5.0" step="0.1" value="3.0">
+                        
+                        <div class="slider-labels">
+                            <span>1.0 (Very Low)</span>
+                            <span>2.0 (Low)</span>
+                            <span>3.0 (Moderate)</span>
+                            <span>4.0 (High)</span>
+                            <span>5.0 (Very High)</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Interpretation Display -->
+                    <div id="interpretationDisplay"></div>
+                </div>
+                
+                <!-- Compare Mode -->
+                <div id="compareModeContent" class="hidden">
+                    <h2 style="margin: 30px 0 20px 0; color: #667eea;">Compare Two Foundations</h2>
+                    
+                    <div class="compare-grid">
+                        <div class="compare-column">
+                            <h3>Foundation 1</h3>
+                            <select id="compare1Select" onchange="updateComparison()" style="width: 100%; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                                <option value="care">Care</option>
+                                <option value="fairness">Fairness</option>
+                                <option value="loyalty">Loyalty</option>
+                                <option value="authority">Authority</option>
+                                <option value="purity">Purity</option>
+                            </select>
+                            <div id="compare1Content"></div>
+                        </div>
+                        <div class="compare-column">
+                            <h3>Foundation 2</h3>
+                            <select id="compare2Select" onchange="updateComparison()" style="width: 100%; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                                <option value="care">Care</option>
+                                <option value="fairness" selected>Fairness</option>
+                                <option value="loyalty">Loyalty</option>
+                                <option value="authority">Authority</option>
+                                <option value="purity">Purity</option>
+                            </select>
+                            <div id="compare2Content"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- What If Mode -->
+                <div id="whatifModeContent" class="hidden">
+                    <h2 style="margin: 30px 0 20px 0; color: #667eea;">What If Simulator</h2>
+                    
+                    <div class="alert alert-info">
+                        <strong>Explore Alternative Selves:</strong> Adjust your foundation weights to see how different PRF patterns would change your phenomenology, reasoning, and framework affinities.
+                    </div>
+                    
+                    <div id="whatifSliders"></div>
+                    <div id="whatifResults"></div>
+                </div>
+                
+                <!-- Quiz Mode -->
+                <div id="quizModeContent" class="hidden">
+                    <h2 style="margin: 30px 0 20px 0; color: #667eea;">Foundation Recognition Quiz</h2>
+                    
+                    <div class="alert alert-info">
+                        <strong>Test Your Understanding:</strong> Match quotes and behaviors to the foundation they reveal. This builds your capacity to read others' PRFs empathetically.
+                    </div>
+                    
+                    <div id="quizQuestions"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // State
+        let userETwin = null;
+        let currentFoundation = 'care';
+        let currentWeight = 3.0;
+        let currentMode = 'explore';
+        let quizScore = 0;
+        
+        // Foundation interpretation database
+        const foundationData = {
+            care: {
+                name: "Care Foundation",
+                description: "Sensitivity to suffering and harm; protective impulses toward vulnerable others",
+                weights: {
+                    veryLow: { // 1.0-1.9
+                        phenomenology: "Suffering and vulnerability are not particularly salient. You notice others' distress but it doesn't trigger strong protective impulses. Emotional distance from others' pain is default state. Focus tends toward tasks, principles, or systems rather than individual welfare.",
+                        assemblyHistory: ["Harsh environments requiring emotional toughening", "Cultural contexts valuing stoicism over emotional responsiveness", "Experiences where emotional investment led to exploitation", "Role models who emphasized self-reliance over interdependence"],
+                        reasoning: "Abstract principles or practical outcomes tend to override concern for particular persons' feelings. Asking 'Is this fair?' or 'What's the rule?' rather than 'Who will this hurt?'",
+                        frameworks: ["Kantian (duty-based)", "Utilitarian (if coldly rational)"],
+                        scenarios: ["Group project: Hold everyone to same standard regardless of circumstances", "Resource allocation: Merit or equality, not need-based"],
+                        blindSpots: ["May seem callous when care is contextually appropriate", "Can miss relational dynamics that affect coordination", "Vulnerable to being perceived as uncaring even when acting from principle"]
+                    },
+                    low: { // 2.0-2.9
+                        phenomenology: "Suffering registers cognitively but doesn't strongly drive decision-making. You understand others are hurting but feel less compelled to act on it compared to other considerations. Care exists but is subordinate to fairness, loyalty, or other foundations.",
+                        assemblyHistory: ["Mixed messages about emotional expression", "Contexts where care was appreciated but not primary virtue", "Experiences balancing multiple values where care sometimes lost", "Professional or academic environments emphasizing objectivity"],
+                        reasoning: "Care considerations are factors in decision-making but rarely decisive. More likely to say 'That's unfortunate, but...' followed by a fairness or duty-based reason.",
+                        frameworks: ["Social Contract (balances care with justice)", "Virtue Ethics (care as one virtue among many)"],
+                        scenarios: ["Whistleblowing: Might prioritize organizational harm over individual careers", "Healthcare: Respect autonomy even if harmful to person"],
+                        blindSpots: ["May undervalue relational maintenance", "Can appear cold in highly emotional contexts", "Might miss care-based solutions to coordination problems"]
+                    },
+                    moderate: { // 3.0-3.9
+                        phenomenology: "Suffering is salient and produces empathetic responses, but not automatically overriding. You feel others' pain and want to help, but also weigh fairness, practicality, and other concerns. Care is a significant factor but context-dependent.",
+                        assemblyHistory: ["Balanced socialization valuing both care and other virtues", "Experiences where care worked in some contexts but not others", "Moderate caregiving roles without total immersion", "Relational contexts emphasizing mutual support without sacrifice"],
+                        reasoning: "Care is a major consideration that often (but not always) influences choices. Asking 'How will this affect them?' alongside other questions. Scenario-specific weighting.",
+                        frameworks: ["Coherence Ethics (adapts care weight to context)", "Care Ethics (moderate version)", "Virtue Ethics (care as important virtue)"],
+                        scenarios: ["Friend's secret: Struggle between protecting friend and upholding integrity", "Job reference: Balance honesty with helping person"],
+                        blindSpots: ["May seem inconsistent to those with stronger care orientation", "Can struggle with clear rules for when care wins vs. other values"]
+                    },
+                    high: { // 4.0-4.9
+                        phenomenology: "Suffering is viscerally salient and triggers strong protective impulses. You immediately notice when someone is hurting; their pain becomes your pain. Alleviating suffering feels morally urgent. Relationships and particular persons are central to moral reasoning.",
+                        assemblyHistory: ["Intensive caregiving experiences (siblings, sick relatives, children)", "Deep bonding through shared vulnerability", "Role models who demonstrated profound compassion", "Experiences where being cared for during crisis was transformative"],
+                        reasoning: "Care frequently overrides other considerations. Asking 'Who is suffering?' and 'How can I help?' are primary moral questions. Rules or fairness that cause harm feel wrong.",
+                        frameworks: ["Care Ethics (Gilligan, Noddings)", "Relational Care", "Coherence Ethics (if high care)"],
+                        scenarios: ["Group project: Defend struggling member even against group consensus", "Healthcare: Prioritize what person wants over medical 'best practices'", "Friend's secret: Protect relationship over abstract integrity"],
+                        blindSpots: ["Can enable harmful behavior through excessive protection", "May neglect systemic fairness for individual care", "Vulnerable to manipulation by those claiming vulnerability", "Can burn out from over-responsibility"]
+                    },
+                    veryHigh: { // 5.0
+                        phenomenology: "Suffering dominates moral perception. Others' pain is intensely immediate and demands response. You experience others' distress almost as your own. Protective instincts activate automatically and powerfully. Harm to persons feels intolerable regardless of justifications.",
+                        assemblyHistory: ["Primary caregiver identity from young age", "Profound experiences of vulnerability creating deep empathy", "Contexts where care was survival-critical", "Intensive immersion in caregiving roles or professions"],
+                        reasoning: "Care is the primary—often exclusive—lens. 'They're suffering' is sufficient moral reason. Other frameworks feel abstract or cruel when harm is visible. Relational obligations feel absolute.",
+                        frameworks: ["Care Ethics (pure form)", "Buddhist compassion ethics", "Maternal ethics"],
+                        scenarios: ["Almost always prioritize preventing immediate suffering over abstract principles", "Will sacrifice fairness, rules, even own welfare to protect vulnerable others"],
+                        blindSpots: ["Extremely vulnerable to caregiver burnout", "May enable destructive behavior through inability to set boundaries", "Can create dependence rather than empowerment", "Fairness and systemic issues may be systematically neglected", "Others may perceive as smothering or controlling"]
+                    }
+                }
+            },
+            
+            fairness: {
+                name: "Fairness Foundation",
+                description: "Sensitivity to proportionality, reciprocity, and justice; concern for cheating and exploitation",
+                weights: {
+                    veryLow: {
+                        phenomenology: "Fairness and proportionality are not particularly salient concerns. You may notice unfairness cognitively but it doesn't trigger strong emotional responses. Relationships or outcomes matter more than whether processes are fair. Hierarchies or loyalties often override equality concerns.",
+                        assemblyHistory: ["Contexts where loyalty or care superseded fairness", "Hierarchical environments where fairness wasn't expected", "Experiences where 'fair' outcomes felt wrong due to context", "Cultural contexts emphasizing relationship over reciprocity"],
+                        reasoning: "Rarely asking 'Is this fair?' More likely to reason from care ('They need help') or loyalty ('They're one of us'). Abstract justice feels less important than particular relationships.",
+                        frameworks: ["Care Ethics (pure)", "Loyalty-based ethics"],
+                        scenarios: ["Resource allocation: Give to those you know/care about, not 'fair' distribution", "Punishment: Forgive in-group, punish out-group regardless of offense"],
+                        blindSpots: ["May be perceived as nepotistic or biased", "Can perpetuate unjust systems through inattention", "Vulnerable to enabling unfairness toward out-groups"]
+                    },
+                    low: {
+                        phenomenology: "Fairness registers as a value but is subordinate to other concerns. You understand fairness arguments but they don't strongly move you. Contextual factors (relationships, outcomes, traditions) feel more important than abstract equality.",
+                        assemblyHistory: ["Mixed messages about fairness vs. other values", "Contexts where rigid fairness produced bad outcomes", "Emphasis on practical results over procedural justice"],
+                        reasoning: "Fairness is considered but usually loses to care, loyalty, or pragmatic concerns. 'That may be fair, but...' is common reasoning pattern.",
+                        frameworks: ["Care Ethics", "Communitarian (context over principle)"],
+                        scenarios: ["Hiring: Choose person you know over equally qualified stranger", "Punishment: More lenient with those you like"],
+                        blindSpots: ["May not notice systematic unfairness", "Can rationalize unequal treatment", "Others may perceive as unfair even when unintentional"]
+                    },
+                    moderate: {
+                        phenomenology: "Fairness is salient and important but balanced with other values. You care about proportionality and reciprocity, but also recognize that context matters. Fair processes are valuable but not absolute. Struggling with tradeoffs is normal.",
+                        assemblyHistory: ["Balanced socialization emphasizing both fairness and flexibility", "Experiences where fairness worked but sometimes felt incomplete", "Exposure to multiple justice traditions"],
+                        reasoning: "Fairness is a major consideration. Asking 'Is this fair?' while also considering 'Does this make sense given context?' Both procedural and substantive justice matter.",
+                        frameworks: ["Coherence Ethics", "Virtue Ethics (justice as virtue)", "Liberal Social Contract"],
+                        scenarios: ["Resource allocation: Try to balance merit, need, and equality", "Punishment: Consider both desert and circumstances"],
+                        blindSpots: ["May seem inconsistent to pure fairness advocates", "Struggle with clear priority rules when fairness conflicts with care"]
+                    },
+                    high: {
+                        phenomenology: "Fairness is highly salient; unfairness triggers strong negative emotions. You immediately notice double standards, cheating, free-riding, and exploitation. Proportionality and reciprocity feel morally fundamental. Abstract principles often trump particular relationships.",
+                        assemblyHistory: ["Experiences of being treated unfairly creating sensitivity", "Contexts emphasizing meritocracy and rule-following", "Philosophical or legal education emphasizing justice", "Competitive environments where fairness was essential"],
+                        reasoning: "Fairness frequently overrides other values. Asking 'Is this fair?' is primary moral question. Rules should apply equally; special pleading is suspect. Consistency across persons is critical.",
+                        frameworks: ["Kantian (universalizability)", "Rawlsian Social Contract", "Utilitarian (impartial calculation)"],
+                        scenarios: ["Group project: Report free-rider even if friend", "Resource allocation: Merit or equality, not favoritism", "Punishment: Same rules for everyone"],
+                        blindSpots: ["Can seem rigid or cold in contexts requiring flexibility", "May neglect legitimate particular obligations", "Context-blindness can produce unjust outcomes", "Can fail to see how 'fair' processes perpetuate structural inequality"]
+                    },
+                    veryHigh: {
+                        phenomenology: "Fairness dominates moral perception. Unfairness is viscerally intolerable; double standards produce intense anger. You see the world through lens of proportionality, reciprocity, and universal principles. Any deviation from equal treatment feels like injustice.",
+                        assemblyHistory: ["Profound experiences of injustice", "Intensive philosophical training", "Professional roles requiring impartiality (judge, arbiter)", "Cultural contexts with strong egalitarian values"],
+                        reasoning: "Fairness is essentially the only moral consideration. 'Treat like cases alike' is absolute principle. Care, loyalty, context are suspect as sources of bias.",
+                        frameworks: ["Pure Kantian deontology", "Strict Utilitarian impartiality", "Rawlsian justice as fairness"],
+                        scenarios: ["Apply rules with absolute consistency regardless of relationships", "Prioritize abstract justice over all particular obligations"],
+                        blindSpots: ["Can be perceived as inhumane or heartless", "May create bad outcomes through inflexibility", "Relationship maintenance may suffer", "Can miss how context legitimately affects moral obligations", "May enforce 'colorblind' fairness that perpetuates structural inequality"]
+                    }
+                }
+            },
+            
+            loyalty: {
+                name: "Loyalty Foundation",
+                description: "Sensitivity to group membership and obligations to in-group; patriotism and tribal bonds",
+                weights: {
+                    veryLow: {
+                        phenomenology: "Group membership is not particularly salient. You don't feel strong pull toward in-group or obligations based on shared identity. Cosmopolitan or individualist orientation; principles or personal bonds matter more than tribal belonging. 'We vs. them' thinking feels artificial.",
+                        assemblyHistory: ["Highly individualist cultural contexts", "Frequent movement between communities preventing deep group bonds", "Negative experiences with group conformity pressure", "Intellectual contexts emphasizing universal humanity over particularity"],
+                        reasoning: "Rarely reasoning from 'They're one of us.' More likely to ask 'Is this fair/helpful/right?' regardless of group membership. Tribalism feels primitive or dangerous.",
+                        frameworks: ["Kantian universalism", "Utilitarian impartiality", "Liberal cosmopolitanism"],
+                        scenarios: ["Treat in-group and out-group by same standards", "Criticism of own group feels unproblematic", "National loyalty seems arbitrary"],
+                        blindSpots: ["May underestimate importance of belonging to others", "Can seem unpatriotic or disloyal", "May miss benefits of group coordination", "Others may perceive as rootless or uncommitted"]
+                    },
+                    low: {
+                        phenomenology: "Group membership exists but isn't very motivating. You recognize you belong to groups but don't feel strong obligations based on that alone. Universal principles or individual relationships feel more important than tribal bonds.",
+                        assemblyHistory: ["Moderate exposure to group identity", "Mixed messages about in-group priority", "Experiences where group loyalty conflicted with fairness"],
+                        reasoning: "Group membership is acknowledged but rarely decisive. 'Yes they're family/fellow citizen/teammate, but...' followed by fairness or care reasoning.",
+                        frameworks: ["Fairness-based ethics", "Moderate cosmopolitanism"],
+                        scenarios: ["Help in-group but also help outsiders", "Don't automatically defend group when wrong"],
+                        blindSpots: ["May seem insufficiently committed to those with higher loyalty", "Can undervalue group coordination benefits"]
+                    },
+                    moderate: {
+                        phenomenology: "Group belonging is significant but balanced. You feel obligations to in-group and value shared identity, but also recognize universal values. Loyalty is context-dependent; legitimate in some situations, problematic in others.",
+                        assemblyHistory: ["Multiple group memberships creating complex loyalties", "Experiences where both loyalty and universalism were valued", "Balanced socialization"],
+                        reasoning: "In-group membership is a moral consideration alongside others. Asking 'What do we owe each other?' while also considering fairness to outsiders.",
+                        frameworks: ["Coherence Ethics", "Communitarian (moderate)", "Virtue Ethics"],
+                        scenarios: ["Give some priority to in-group but not exclusively", "Balance patriotism with criticism", "Loyalty to friends but won't cover up wrongdoing"],
+                        blindSpots: ["May seem inconsistent", "Struggle with where to draw boundaries between appropriate and excessive loyalty"]
+                    },
+                    high: {
+                        phenomenology: "Group belonging is highly salient. You strongly identify with in-groups and feel deep obligations to fellow members. 'We vs. them' distinctions are natural and important. Shared identity creates powerful bonds and duties.",
+                        assemblyHistory: ["Tight-knit communities or teams", "Military or team sports with strong group identity", "Cultural contexts emphasizing collective identity", "Experiences where group solidarity was protective or meaningful"],
+                        reasoning: "Loyalty frequently overrides universal principles. Asking 'Are they one of us?' is primary. In-group members deserve priority. Defending the group feels obligatory.",
+                        frameworks: ["Communitarian ethics", "Patriotic duty", "Team-based ethics"],
+                        scenarios: ["Defend in-group members even when wrong", "Resource allocation prioritizes own group", "Criticism of group feels like betrayal"],
+                        blindSpots: ["Can enable in-group wrongdoing through blind loyalty", "May be unfair to outsiders", "Vulnerable to demagogues exploiting group identity", "Can create inter-group conflict"]
+                    },
+                    veryHigh: {
+                        phenomenology: "Group belonging dominates moral perception. You experience intense identification with in-groups; their successes are yours, their threats are yours. 'We' is more fundamental than 'I.' Betraying the group feels unthinkable.",
+                        assemblyHistory: ["Total immersion in tightly bonded communities", "Survival dependent on group solidarity", "Military combat or similar high-stakes team contexts", "Deep cultural transmission of collective identity"],
+                        reasoning: "Loyalty is essentially absolute. 'My family/team/nation right or wrong.' Outsider welfare is morally irrelevant compared to in-group.",
+                        frameworks: ["Pure tribalism", "Extreme nationalism", "Mafia-style loyalty codes"],
+                        scenarios: ["Will lie, cheat, harm others to protect in-group", "Out-group automatically suspect", "Group criticism is betrayal"],
+                        blindSpots: ["Can perpetrate serious injustice toward outsiders", "Vulnerable to manipulation through group identity", "May support harmful group actions through blind loyalty", "Difficult to coordinate across group boundaries", "Can enable authoritarianism"]
+                    }
+                }
+            },
+            
+            authority: {
+                name: "Authority Foundation",
+                description: "Sensitivity to hierarchy, tradition, and legitimate authority; respect for social order",
+                weights: {
+                    veryLow: {
+                        phenomenology: "Hierarchy and tradition are not particularly compelling. You don't naturally defer to authority; 'because that's how it's always been' or 'because they're in charge' feel like non-reasons. Autonomy and questioning are default. Social order feels optional.",
+                        assemblyHistory: ["Harsh or incompetent authority figures", "Highly individualist cultural contexts", "Intellectual environments rewarding skepticism", "Experiences where authority failed or harmed"],
+                        reasoning: "Rarely reasoning from authority or tradition. More likely to ask 'Does this make sense?' or 'Is this fair?' Status doesn't confer legitimacy automatically.",
+                        frameworks: ["Libertarian autonomy", "Anarchist ethics", "Radical questioning"],
+                        scenarios: ["Challenge authority when disagree", "Tradition not persuasive", "Hierarchy seems arbitrary"],
+                        blindSpots: ["May seem disrespectful or insubordinate", "Can miss benefits of coordination through hierarchy", "May underestimate value of accumulated wisdom in tradition"]
+                    },
+                    low: {
+                        phenomenology: "Authority and tradition are recognized but not particularly motivating. You'll follow rules when they make sense but don't feel inherent obligation to defer. Hierarchies are functional tools, not sources of moral legitimacy.",
+                        assemblyHistory: ["Mixed experiences with authority", "Moderate emphasis on autonomy", "Contexts where questioning was acceptable"],
+                        reasoning: "Authority is considered but rarely decisive. 'Yes, they're in charge, but...' followed by fairness or pragmatic reasoning.",
+                        frameworks: ["Liberal democracy (authority needs justification)", "Pragmatist ethics"],
+                        scenarios: ["Follow rules when they make sense", "Respect competent authority", "Don't automatically defer"],
+                        blindSpots: ["May undervalue coordination benefits of hierarchy", "Can seem insufficiently respectful"]
+                    },
+                    moderate: {
+                        phenomenology: "Authority and tradition are significant but not absolute. You respect hierarchy and accumulated wisdom but also value autonomy and questioning. Legitimate authority deserves deference; illegitimate doesn't.",
+                        assemblyHistory: ["Balanced socialization", "Mix of competent and incompetent authorities", "Contexts valuing both respect and questioning"],
+                        reasoning: "Authority is a consideration alongside others. Asking 'Is this legitimate authority?' and 'Does tradition have wisdom here?'",
+                        frameworks: ["Coherence Ethics", "Virtue Ethics (respect as virtue)", "Conservative liberalism"],
+                        scenarios: ["Respect authority when earned", "Value tradition but open to change", "Balance order with justice"],
+                        blindSpots: ["May struggle with when authority becomes illegitimate", "Can seem inconsistent"]
+                    },
+                    high: {
+                        phenomenology: "Hierarchy and tradition are highly salient. You naturally respect authority and feel obligations to defer to legitimate leaders. Social order feels morally important; chaos is threatening. Wisdom is embedded in tradition.",
+                        assemblyHistory: ["Structured hierarchical environments (military, traditional religion)", "Positive experiences with competent authority", "Cultural contexts emphasizing respect for elders/leaders", "Experiences where order prevented chaos"],
+                        reasoning: "Authority frequently guides decisions. Asking 'What does legitimate authority prescribe?' and 'What does tradition teach?' Respect for hierarchy feels natural.",
+                        frameworks: ["Conservative ethics", "Religious authority-based ethics", "Confucian role ethics"],
+                        scenarios: ["Defer to authority in uncertain situations", "Value tradition highly", "Respect hierarchical decision-making", "Order is moral good"],
+                        blindSpots: ["Can defer to illegitimate authority", "May perpetuate unjust traditions", "Can conflate 'is' with 'ought'", "Vulnerable to authoritarian manipulation"]
+                    },
+                    veryHigh: {
+                        phenomenology: "Authority and tradition dominate moral perception. Hierarchy feels natural and necessary; questioning authority feels wrong. 'Because that's how it's always been' is compelling reason. Social order is sacred; chaos is moral failure.",
+                        assemblyHistory: ["Total immersion in hierarchical systems", "Military service or similar total institutions", "Very traditional religious upbringing", "Contexts where order was survival-critical"],
+                        reasoning: "Authority and tradition are essentially absolute. Challenging hierarchy or tradition feels like moral transgression. Obedience is virtue.",
+                        frameworks: ["Authoritarian ethics", "Divine command theory", "Extreme traditionalism"],
+                        scenarios: ["Unquestioning obedience to authority", "Tradition absolutely binding", "Change is suspect"],
+                        blindSpots: ["Cannot recognize when authority is illegitimate", "Can enable tyranny through blind obedience", "May perpetuate serious injustice through tradition", "Difficult to adapt to novel situations", "Can be manipulated by authoritarian leaders"]
+                    }
+                }
+            },
+            
+            purity: {
+                name: "Purity Foundation",
+                description: "Sensitivity to sacred/profane boundaries, contamination, and degradation; disgust responses",
+                weights: {
+                    veryLow: {
+                        phenomenology: "Sacred/profane boundaries are not particularly salient. You don't have strong disgust responses to 'taboo' violations. Purity concerns feel arbitrary or superstitious. Pragmatic or fairness-based reasoning dominates.",
+                        assemblyHistory: ["Secular upbringing with minimal ritual", "Emphasis on questioning taboos", "Scientific or rationalist contexts", "Experiences where purity rules produced bad outcomes"],
+                        reasoning: "Rarely reasoning from purity/disgust. More likely to ask 'Does this harm anyone?' or 'Is this fair?' Taboos seem culturally arbitrary.",
+                        frameworks: ["Utilitarian", "Kantian (if not grounded in purity)", "Secular ethics"],
+                        scenarios: ["Sexual ethics based on consent not purity", "Food choices pragmatic not sacred", "Body is biological not temple"],
+                        blindSpots: ["May seem disrespectful of others' sacred values", "Can miss symbolic importance of rituals", "May underestimate disgust's social coordination function"]
+                    },
+                    low: {
+                        phenomenology: "Some purity intuitions exist but are not very motivating. You might have mild disgust responses but they don't drive decisions. Pragmatic or relational concerns feel more important.",
+                        assemblyHistory: ["Moderate religious or cultural socialization", "Mixed messages about purity", "Secular contexts with vestigial purity norms"],
+                        reasoning: "Purity considerations are acknowledged but rarely decisive. 'That may be gross/taboo, but...' followed by pragmatic reasoning.",
+                        frameworks: ["Moderate secular ethics", "Liberal religion"],
+                        scenarios: ["Some food/sex taboos but flexible", "Disgust noted but overridden by other values"],
+                        blindSpots: ["May seem insufficiently respectful of sacred", "Can undervalue symbolic meaning"]
+                    },
+                    moderate: {
+                        phenomenology: "Purity concerns are significant in some domains. You have meaningful sacred/profane boundaries but they're context-specific. Some things feel genuinely degrading or profane; others are pragmatic.",
+                        assemblyHistory: ["Moderate religious upbringing", "Cultural contexts with some purity norms", "Mix of sacred and secular spheres"],
+                        reasoning: "Purity matters in some contexts. Certain boundaries feel important; others seem arbitrary. Context determines weight.",
+                        frameworks: ["Coherence Ethics (context-dependent purity)", "Moderate religious ethics"],
+                        scenarios: ["Some sacred values but not pervasive", "Disgust in some domains not others"],
+                        blindSpots: ["May struggle with when purity is legitimate vs. arbitrary"]
+                    },
+                    high: {
+                        phenomenology: "Sacred/profane boundaries are highly salient. You have strong disgust responses to violations; certain things feel genuinely contaminating or degrading. Purity rules feel morally important, not arbitrary.",
+                        assemblyHistory: ["Religious upbringing with strong purity emphasis", "Cultural contexts with clear sacred/profane distinctions", "Experiences where purity violation felt genuinely wrong"],
+                        reasoning: "Purity frequently guides decisions. Asking 'Is this sacred or profane?' and 'Does this defile or elevate?' Disgust is moral guidance.",
+                        frameworks: ["Religious ethics (purity-focused)", "Conservative virtue ethics", "Some environmental ethics (nature as sacred)"],
+                        scenarios: ["Strong sexual purity norms", "Food taboos seriously observed", "Body/nature treated as sacred"],
+                        blindSpots: ["Can impose purity norms on others inappropriately", "May confuse disgust with moral truth", "Can perpetuate harmful taboos (e.g., menstrual taboos)", "May stigmatize those who violate purity codes"]
+                    },
+                    veryHigh: {
+                        phenomenology: "Purity dominates moral perception. Sacred/profane boundaries feel absolute; violations produce intense disgust. The world divides into clean/unclean, elevated/degraded, sacred/profane. Contamination fears are powerful.",
+                        assemblyHistory: ["Very traditional religious upbringing", "OCD or similar anxiety creating purity hypervigilance", "Cultural contexts with pervasive purity codes", "Trauma creating contamination fears"],
+                        reasoning: "Purity is essentially the only consideration in relevant domains. Disgust equals moral truth. Sacred boundaries are inviolable.",
+                        frameworks: ["Fundamentalist religious ethics", "Extreme traditionalism", "Purity-obsessed ideologies"],
+                        scenarios: ["Pervasive purity codes governing behavior", "Intense disgust responses", "Contamination fears"],
+                        blindSpots: ["Can perpetuate serious harm through purity enforcement", "May stigmatize and exclude based on 'contamination'", "Can create psychologically harmful obsessions", "Difficult to engage across purity boundaries", "Can be manipulated through disgust appeals"]
+                    }
+                }
+            }
+        };
+        
+        // Quiz questions database
+        const quizQuestions = [
+            {
+                quote: "We can't just abandon them when they need us most.",
+                foundation: "care",
+                explanation: "Emphasizes relational obligation and responding to need—core Care foundation language."
+            },
+            {
+                quote: "Everyone should play by the same rules. No special treatment.",
+                foundation: "fairness",
+                explanation: "Universalizability and equal treatment—hallmark of Fairness foundation."
+            },
+            {
+                quote: "They're family. Of course I'm going to defend them.",
+                foundation: "loyalty",
+                explanation: "In-group obligation based on shared identity—pure Loyalty foundation."
+            },
+            {
+                quote: "That's how we've always done it, and there's wisdom in that.",
+                foundation: "authority",
+                explanation: "Tradition as source of legitimacy—Authority foundation reasoning."
+            },
+            {
+                quote: "That just feels wrong on a visceral level. It's degrading.",
+                foundation: "purity",
+                explanation: "Disgust and degradation language—Purity foundation response."
+            },
+            {
+                quote: "I saw how much pain they were in, and I had to help.",
+                foundation: "care",
+                explanation: "Visceral response to suffering compelling action—Care foundation."
+            },
+            {
+                quote: "If they cheated, they should face the same consequences as anyone else.",
+                foundation: "fairness",
+                explanation: "Proportional punishment and consistency—Fairness foundation."
+            },
+            {
+                quote: "I'd never criticize our team publicly. That's disloyal.",
+                foundation: "loyalty",
+                explanation: "In-group solidarity overriding honesty—Loyalty foundation."
+            },
+            {
+                quote: "We should respect the decision of those in authority.",
+                foundation: "authority",
+                explanation: "Deference to hierarchy—Authority foundation."
+            },
+            {
+                quote: "Some things are just sacred and shouldn't be commodified.",
+                foundation: "purity",
+                explanation: "Sacred/profane boundary maintenance—Purity foundation."
+            }
+        ];
+        
+        // Initialize
+        const importZone = document.getElementById('importZone');
+        const fileInput = document.getElementById('fileInput');
+        
+        importZone.addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    userETwin = JSON.parse(event.target.result);
+                    displayUserScores();
+                    document.getElementById('continueBtn').style.display = 'block';
+                } catch (error) {
+                    alert('Error reading file. Please ensure it is a valid Digital E-Twin JSON file.');
+                }
+            };
+            reader.readAsText(file);
+        });
+        
+        function displayUserScores() {
+            const prf = userETwin.prf22.moralFoundations;
+            
+            const preview = document.getElementById('userScoresPreview');
+            preview.className = '';
+            preview.innerHTML = `
+                <div class="interpretation-card">
+                    <h3>✅ Your PRF-22 Scores Loaded</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
+                        <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 2em; font-weight: bold; color: #e83e8c;">${prf.Care.toFixed(1)}</div>
+                            <div style="color: #666; margin-top: 5px;">Care</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 2em; font-weight: bold; color: #007bff;">${prf.Fairness.toFixed(1)}</div>
+                            <div style="color: #666; margin-top: 5px;">Fairness</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 2em; font-weight: bold; color: #ffc107;">${prf.Loyalty.toFixed(1)}</div>
+                            <div style="color: #666; margin-top: 5px;">Loyalty</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 2em; font-weight: bold; color: #6f42c1;">${prf.Authority.toFixed(1)}</div>
+                            <div style="color: #666; margin-top: 5px;">Authority</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 2em; font-weight: bold; color: #28a745;">${prf.Purity.toFixed(1)}</div>
+                            <div style="color: #666; margin-top: 5px;">Purity</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function showExplorer() {
+            document.getElementById('importSection').classList.add('hidden');
+            document.getElementById('explorerSection').classList.remove('hidden');
+            
+            // Set user scores in badges
+            const prf = userETwin.prf22.moralFoundations;
+            document.getElementById('careScore').textContent = prf.Care.toFixed(1);
+            document.getElementById('fairnessScore').textContent = prf.Fairness.toFixed(1);
+            document.getElementById('loyaltyScore').textContent = prf.Loyalty.toFixed(1);
+            document.getElementById('authorityScore').textContent = prf.Authority.toFixed(1);
+            document.getElementById('purityScore').textContent = prf.Purity.toFixed(1);
+            
+            // Set initial weight to user's Care score
+            currentWeight = prf.Care;
+            document.getElementById('weightSlider').value = currentWeight;
+            document.getElementById('weightDisplay').textContent = currentWeight.toFixed(1);
+            
+            updateInterpretation();
+        }
+        
+        function setMode(mode) {
+            currentMode = mode;
+            
+            // Update mode buttons
+            document.querySelectorAll('.mode-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('mode' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
+            
+            // Show/hide content
+            document.getElementById('exploreModeContent').classList.toggle('hidden', mode !== 'explore');
+            document.getElementById('compareModeContent').classList.toggle('hidden', mode !== 'compare');
+            document.getElementById('whatifModeContent').classList.toggle('hidden', mode !== 'whatif');
+            document.getElementById('quizModeContent').classList.toggle('hidden', mode !== 'quiz');
+            
+            if (mode === 'compare') {
+                updateComparison();
+            } else if (mode === 'whatif') {
+                initializeWhatIf();
+            } else if (mode === 'quiz') {
+                initializeQuiz();
+            }
+        }
+        
+        function selectFoundation(foundation) {
+            currentFoundation = foundation;
+            
+            // Update foundation buttons
+            document.querySelectorAll('.foundation-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.foundation-button.${foundation}`).classList.add('active');
+            
+            // Set weight to user's score for this foundation
+            const prf = userETwin.prf22.moralFoundations;
+            const foundationMap = {
+                care: 'Care',
+                fairness: 'Fairness',
+                loyalty: 'Loyalty',
+                authority: 'Authority',
+                purity: 'Purity'
+            };
+            currentWeight = prf[foundationMap[foundation]];
+            document.getElementById('weightSlider').value = currentWeight;
+            document.getElementById('weightDisplay').textContent = currentWeight.toFixed(1);
+            
+            updateInterpretation();
+        }
+        
+        // Slider event listener
+        document.addEventListener('DOMContentLoaded', () => {
+            const slider = document.getElementById('weightSlider');
+            if (slider) {
+                slider.addEventListener('input', (e) => {
+                    currentWeight = parseFloat(e.target.value);
+                    document.getElementById('weightDisplay').textContent = currentWeight.toFixed(1);
+                    updateInterpretation();
+                });
+            }
+        });
+        
+        function updateInterpretation() {
+            const data = foundationData[currentFoundation];
+            const titleMap = {
+                care: "Care Foundation",
+                fairness: "Fairness Foundation",
+                loyalty: "Loyalty Foundation",
+                authority: "Authority Foundation",
+                purity: "Purity Foundation"
+            };
+            
+            document.getElementById('currentFoundationTitle').textContent = titleMap[currentFoundation];
+            
+            // Determine weight category
+            let weightCategory;
+            if (currentWeight < 2.0) weightCategory = 'veryLow';
+            else if (currentWeight < 3.0) weightCategory = 'low';
+            else if (currentWeight < 4.0) weightCategory = 'moderate';
+            else if (currentWeight < 5.0) weightCategory = 'high';
+            else weightCategory = 'veryHigh';
+            
+            const interpretation = data.weights[weightCategory];
+            
+            // Build interpretation display
+            const display = document.getElementById('interpretationDisplay');
+            display.innerHTML = `
+                <div class="interpretation-card">
+                    <h3>🧠 Phenomenology at ${currentWeight.toFixed(1)}</h3>
+                    <p>${interpretation.phenomenology}</p>
+                </div>
+                
+                <div class="interpretation-card">
+                    <h3>📚 Likely Assembly History</h3>
+                    <p>Experiences that typically build this weight:</p>
+                    <ul style="margin: 15px 0 0 20px; line-height: 2;">
+                        ${interpretation.assemblyHistory.map(h => `<li>${h}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="interpretation-card">
+                    <h3>💭 Reasoning Patterns</h3>
+                    <p>${interpretation.reasoning}</p>
+                </div>
+                
+                <div class="interpretation-card">
+                    <h3>📖 Framework Affinities</h3>
+                    <p>At this weight, you naturally align with:</p>
+                    <div class="tag-list">
+                        ${interpretation.frameworks.map(f => `<span class="tag framework">${f}</span>`).join('')}
+                    </div>
+                </div>
+                
+                <div class="interpretation-card">
+                    <h3>🎯 Decision Tendencies</h3>
+                    <p>How this weight influences scenario choices:</p>
+                    ${interpretation.scenarios.map(s => `
+                        <div class="scenario-example">
+                            <strong>${s}</strong>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="interpretation-card">
+                    <h3>⚠️ Potential Blind Spots</h3>
+                    <ul style="margin: 15px 0 0 20px; line-height: 2;">
+                        ${interpretation.blindSpots.map(b => `<li>${b}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        function updateComparison() {
+            const f1 = document.getElementById('compare1Select').value;
+            const f2 = document.getElementById('compare2Select').value;
+            
+            const prf = userETwin.prf22.moralFoundations;
+            const foundationMap = {
+                care: 'Care',
+                fairness: 'Fairness',
+                loyalty: 'Loyalty',
+                authority: 'Authority',
+                purity: 'Purity'
+            };
+            
+            const weight1 = prf[foundationMap[f1]];
+            const weight2 = prf[foundationMap[f2]];
+            
+            document.getElementById('compare1Content').innerHTML = generateComparisonContent(f1, weight1);
+            document.getElementById('compare2Content').innerHTML = generateComparisonContent(f2, weight2);
+        }
+        
+        function generateComparisonContent(foundation, weight) {
+            const data = foundationData[foundation];
+            
+            let weightCategory;
+            if (weight < 2.0) weightCategory = 'veryLow';
+            else if (weight < 3.0) weightCategory = 'low';
+            else if (weight < 4.0) weightCategory = 'moderate';
+            else if (weight < 5.0) weightCategory = 'high';
+            else weightCategory = 'veryHigh';
+            
+            const interpretation = data.weights[weightCategory];
+            
+            return `
+                <div style="text-align: center; margin: 20px 0;">
+                    <div style="font-size: 3em; font-weight: bold; color: #667eea;">${weight.toFixed(1)}</div>
+                    <div style="color: #666;">Your Score</div>
+                </div>
+                
+                <div style="margin: 15px 0;">
+                    <strong>Phenomenology:</strong>
+                    <p style="margin-top: 5px; font-size: 0.9em;">${interpretation.phenomenology.substring(0, 150)}...</p>
+                </div>
+                
+                <div style="margin: 15px 0;">
+                    <strong>Frameworks:</strong>
+                    <div class="tag-list" style="margin-top: 5px;">
+                        ${interpretation.frameworks.map(f => `<span class="tag framework">${f}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function initializeWhatIf() {
+            const prf = userETwin.prf22.moralFoundations;
+            
+            const slidersDiv = document.getElementById('whatifSliders');
+            slidersDiv.innerHTML = `
+                <div style="background: #f8f9fa; padding: 25px; border-radius: 10px;">
+                    <h3 style="margin-bottom: 20px;">Adjust Foundation Weights</h3>
+                    ${['care', 'fairness', 'loyalty', 'authority', 'purity'].map(f => {
+                        const foundationMap = {
+                            care: 'Care',
+                            fairness: 'Fairness',
+                            loyalty: 'Loyalty',
+                            authority: 'Authority',
+                            purity: 'Purity'
+                        };
+                        const score = prf[foundationMap[f]];
+                        return `
+                            <div style="margin: 20px 0;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                    <strong>${foundationMap[f]}</strong>
+                                    <span id="whatif-${f}-value">${score.toFixed(1)}</span>
+                                </div>
+                                <input type="range" id="whatif-${f}" min="1.0" max="5.0" step="0.1" value="${score}" 
+                                    style="width: 100%;"
+                                    oninput="document.getElementById('whatif-${f}-value').textContent = parseFloat(this.value).toFixed(1); updateWhatIfResults();">
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            
+            updateWhatIfResults();
+        }
+        
+        function updateWhatIfResults() {
+            const whatifPRF = {
+                care: parseFloat(document.getElementById('whatif-care').value),
+                fairness: parseFloat(document.getElementById('whatif-fairness').value),
+                loyalty: parseFloat(document.getElementById('whatif-loyalty').value),
+                authority: parseFloat(document.getElementById('whatif-authority').value),
+                purity: parseFloat(document.getElementById('whatif-purity').value)
+            };
+            
+            const resultsDiv = document.getElementById('whatifResults');
+            resultsDiv.innerHTML = `
+                <div class="interpretation-card">
+                    <h3>🔮 Predicted Profile</h3>
+                    <p>With these weights, your phenomenology would likely be:</p>
+                    
+                    <div style="margin: 20px 0;">
+                        <strong>Primary Orientation:</strong>
+                        ${getPrimaryOrientation(whatifPRF)}
+                    </div>
+                    
+                    <div style="margin: 20px 0;">
+                        <strong>Predicted Framework Affinities:</strong>
+                        ${getPredictedFrameworks(whatifPRF)}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getPrimaryOrientation(prf) {
+            const highest = Object.entries(prf).sort((a, b) => b[1] - a[1])[0];
+            const orientations = {
+                care: "Relational/caring - responding to suffering and protecting vulnerable",
+                fairness: "Justice-oriented - ensuring proportionality and equal treatment",
+                loyalty: "Community-focused - prioritizing in-group bonds and solidarity",
+                authority: "Order-maintaining - respecting hierarchy and tradition",
+                purity: "Boundary-keeping - maintaining sacred/profane distinctions"
+            };
+            return `<p style="margin-top: 10px;">${orientations[highest[0]]}</p>`;
+        }
+        
+        function getPredictedFrameworks(prf) {
+            const frameworks = [];
+            
+            if (prf.care >= 4.0) frameworks.push("Care Ethics");
+            if (prf.fairness >= 4.0) frameworks.push("Kantian/Utilitarian");
+            if (prf.loyalty >= 4.0) frameworks.push("Communitarian");
+            if (prf.authority >= 4.0) frameworks.push("Conservative/Religious");
+            if (prf.care >= 3.5 && prf.fairness >= 3.5 && prf.loyalty >= 3.5) frameworks.push("Coherence Ethics");
+            
+            if (frameworks.length === 0) frameworks.push("Balanced/Pragmatist");
+            
+            return `
+                <div class="tag-list">
+                    ${frameworks.map(f => `<span class="tag framework">${f}</span>`).join('')}
+                </div>
+            `;
+        }
+        
+        function initializeQuiz() {
+            quizScore = 0;
+            const quizDiv = document.getElementById('quizQuestions');
+            
+            quizDiv.innerHTML = `
+                <div class="alert alert-info">
+                    <strong>Score: <span id="quizScoreDisplay">0</span> / ${quizQuestions.length}</strong>
+                </div>
+                
+                ${quizQuestions.map((q, idx) => `
+                    <div class="quiz-question" id="quiz-${idx}">
+                        <h4>Quote ${idx + 1}:</h4>
+                        <p style="font-style: italic; margin: 15px 0; font-size: 1.1em;">"${q.quote}"</p>
+                        <p><strong>Which foundation does this reveal?</strong></p>
+                        <div class="quiz-options">
+                            <div class="quiz-option" onclick="answerQuiz(${idx}, 'care')">Care</div>
+                            <div class="quiz-option" onclick="answerQuiz(${idx}, 'fairness')">Fairness</div>
+                            <div class="quiz-option" onclick="answerQuiz(${idx}, 'loyalty')">Loyalty</div>
+                            <div class="quiz-option" onclick="answerQuiz(${idx}, 'authority')">Authority</div>
+                            <div class="quiz-option" onclick="answerQuiz(${idx}, 'purity')">Purity</div>
+                        </div>
+                        <div id="quiz-${idx}-feedback" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+        
+        function answerQuiz(questionIdx, answer) {
+            const question = quizQuestions[questionIdx];
+            const isCorrect = answer === question.foundation;
+            
+            if (isCorrect) quizScore++;
+            
+            // Update score display
+            document.getElementById('quizScoreDisplay').textContent = quizScore;
+            
+            // Show feedback
+            const feedbackDiv = document.getElementById(`quiz-${questionIdx}-feedback`);
+            feedbackDiv.style.display = 'block';
+            feedbackDiv.innerHTML = `
+                <strong style="color: ${isCorrect ? '#28a745' : '#dc3545'};">
+                    ${isCorrect ? '✅ Correct!' : '❌ Incorrect'}
+                </strong>
+                <p style="margin-top: 10px;"><strong>Answer:</strong> ${question.foundation.charAt(0).toUpperCase() + question.foundation.slice(1)}</p>
+                <p style="margin-top: 5px;">${question.explanation}</p>
+            `;
+            
+            // Disable options for this question
+            const options = document.querySelectorAll(`#quiz-${questionIdx} .quiz-option`);
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+                if (opt.textContent.toLowerCase() === question.foundation) {
+                    opt.classList.add('correct');
+                } else if (opt.textContent.toLowerCase() === answer && !isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+        }
+    </script>
 </body>
 </html>
